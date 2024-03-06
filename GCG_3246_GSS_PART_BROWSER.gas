@@ -1,0 +1,52 @@
+Program.Sub.ScreenSU.Start
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+'ERM
+'03/11/2012
+'Quote 3233
+'Hook 17380
+
+V.Local.sError.Declare(String)
+V.Local.sRet.Declare(String)
+V.Local.sSQL.Declare(String)
+V.Local.sTitles.Declare(String)
+V.Local.sWidths.Declare(String)
+V.Local.sPart.Declare(String)
+V.Local.sRev.Declare(String)
+V.Local.sPartRev.Declare(String)
+
+'Override GSQL browsers with GAB browser.  GAB browser is customer specific.
+F.ODBC.Connection!con.OpenConnection(V.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass)
+F.Intrinsic.String.Split("Description*!*Part*!*Loc*!*Alt Desc 1*!*Alt Desc 2*!*Customer*!*Cust Part*!*Mfg Part*!*Mfg Name","*!*",V.Local.sTitles)
+F.Intrinsic.String.Split("3200*!*1900*!*400*!*3200*!*3200*!*1000*!*1800*!*1800*!*2500","*!*",V.Local.sWidths)
+F.Intrinsic.UI.SetBrowserHotTypeAhead(True)
+F.Intrinsic.String.Concat("Select A.Description,A.Part,A.Location,B.Description_2,B.Description_3,C.Customer,C.Customer_Part,C.Mfg_Part,C.Mfg_Name From V_INVENTORY_MSTR as A, V_INVENTORY_MST2 as B, V_INV_CROSS_REF as C Where A.PART = B.Part and A.Part = C.Part","",V.Local.sSQL)
+F.Intrinsic.UI.Browser("Select a Inventory Part","con",V.Local.sSQL,V.Local.sTitles,V.Local.sWidths,20000,20000,V.Local.sRet)
+F.Intrinsic.String.Split(V.Local.sRet,"*!*",V.Local.sRet)
+
+F.Intrinsic.Control.If(V.Local.sRet,<>,"***CANCEL***")
+	V.Passed.009001.Set(V.Local.sRet(1))
+F.Intrinsic.Control.EndIf
+V.Passed.777777.Set(1)
+
+Program.Sub.Main.End
+
+Program.Sub.Comments.Start
+${$0$}$GCG_GSS_PART_BROWSER$}$ERIC$}$3/10/2012
+${$3$}$0$}$$}$-1$}$-1$}$$}$1/1/1900$}$Customer: Precision Cut Industries
+Quote: 3203 - 0
+
+Description:
+Close the Work Orders with in a specified range.
+
+Spec:
+This program will provide the user with a screen to select a range of work orders from the open work order table (JOB_HEADER) in Global Shop.  The user will specify a date that will be written as the close date (DATE_CLOSED) on the range of work orders.  The CLOSED_FLAG will also be set to 'Y'.
+
+In order for APS to reflect these manual job closures, the scheduling data will need to be re-downloaded, and globally rescheduled.
+Program.Sub.Comments.End
+
